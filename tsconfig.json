@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node20/tsconfig.json",
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "static"],
   "exclude": ["node_modules", "__tests__/**/*.ts", "**/*.test.ts"],
   "compilerOptions": {
     "sourceMap": true,
