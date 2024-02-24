@@ -13,3 +13,10 @@ export enum MessageResponseType {
     /* Special */
     ParseError = 'parse_error',
 }
+
+export enum MessageRequestType {
+    Registration = 'reg',
+    CreateRoom = 'create_room',
+    AddShips = 'add_ships',
+    AddUserToRoom = 'add_user_to_room',
+}

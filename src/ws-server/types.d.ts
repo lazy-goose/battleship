@@ -19,6 +19,7 @@ export type MessageHandlerParams<D = unknown> = {
         wss: ws.WebSocketServer
         ws: ws.WebSocket
     }
+    sessionId: string
 }
 export type MessageHandler<D = unknown> = (
     params: MessageHandlerParams<D>,

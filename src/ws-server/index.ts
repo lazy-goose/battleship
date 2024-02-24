@@ -1,10 +1,29 @@
-import { WebSocketServer, type Server, type WebSocket } from 'ws'
-import { MessageResponseType } from '../utils/constants'
-import { parseMessage, stringifyMessage } from './messageParser'
-import type { MessageHandlerParams } from './types.d'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 
-// eslint-disable-next-line
-const handleMessageEvent = (params: MessageHandlerParams) => {}
+import { WebSocketServer, type Server, type WebSocket } from 'ws'
+import { MessageRequestType, MessageResponseType } from '../utils/constants'
+import reg from './handlers/reg'
+import update_winners from './handlers/update_winners'
+import { parseMessage, stringifyMessage } from './messageParser'
+import type { MessageHandler, MessageHandlerParams } from './types.d'
+
+const handleMessageEvent = (params: MessageHandlerParams) => {
+    const {
+        message: { type },
+    } = params
+    const call = <T>(handler: MessageHandler<T>) => {
+        // @ts-expect-error
+        handler(params)
+    }
+    switch (type) {
+        case MessageRequestType.Registration:
+            call(reg)
+            call(update_winners)
+            return
+        default:
+            return
+    }
+}
 
 export const wsServer = {
     listen: (port: number, onServerStart?: (ws: Server) => void) => {
@@ -45,6 +64,7 @@ export const wsServer = {
                         wss: wsServer,
                         ws,
                     },
+                    sessionId,
                 })
             })
         })

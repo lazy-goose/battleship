@@ -1,3 +1,5 @@
+import { createUsersSlice } from './slices/users'
+import { createWinnersSlice } from './slices/winners'
 import type { GetStore, SetStore, Store } from './types.d'
 
 const createStore = <S extends Record<string, unknown>>(
@@ -15,4 +17,7 @@ const createStore = <S extends Record<string, unknown>>(
     }
 }
 
-export const { store, getStore, setStore } = createStore<Store>(() => ({}))
+export const { store, getStore, setStore } = createStore<Store>((...a) => ({
+    ...createUsersSlice(...a),
+    ...createWinnersSlice(...a),
+}))
