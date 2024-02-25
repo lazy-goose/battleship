@@ -35,4 +35,7 @@ export default {
             },
         ],
     },
+    externals: {
+        ws: `require('ws')`,
+    },
 } satisfies Configuration
