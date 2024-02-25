@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/node20/tsconfig.json",
   "include": ["src/**/*", "static"],
-  "exclude": ["node_modules", "__tests__/**/*.ts", "**/*.test.ts"],
+  "exclude": ["node_modules", "cypress", "__tests__/**/*.ts", "**/*.test.ts"],
   "compilerOptions": {
     "sourceMap": true,
     "experimentalDecorators": true
