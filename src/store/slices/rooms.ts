@@ -32,13 +32,14 @@ export const createRoomSlice: SliceCreator<RoomSlice> = (set, get) => ({
         if (!room) {
             return undefined
         }
-        if (room.host !== userIndex) return undefined
-        if (room.player !== userIndex) return undefined
+        if (room.host !== userIndex && room.player !== userIndex)
+            return undefined
         if (room.host === userIndex) {
             get().removeRoom(indexRoom)
             return undefined
         } else {
             room.player = null
+            room.filled = false
             return room
         }
     },
