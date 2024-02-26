@@ -2,7 +2,7 @@ import { store } from '../../store'
 import { MessageResponseType } from '../../utils/constants'
 import { defineHandler } from '../../utils/defineHandler'
 import { useCall } from '../../utils/useCall'
-import { MessageHandlerParams } from '../types'
+import type { MessageHandlerParams } from '../types.d'
 import attack from './attack'
 
 export default defineHandler<{

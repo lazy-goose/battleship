@@ -1,4 +1,4 @@
-import { Game } from '../../store/types'
+import type { Game } from '../../store/types.d'
 import { MessageResponseType } from '../../utils/constants'
 import { defineHandler } from '../../utils/defineHandler'
 

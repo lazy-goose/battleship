@@ -162,4 +162,15 @@ export const createGameSlice: SliceCreator<GameSlice> = (set, get) => ({
                 ? player2.inGameIndex
                 : player1.inGameIndex)
     },
+    winGame: (gameId) => {
+        const game = get().games.find((g) => g.gameId === gameId)
+        if (!game) {
+            return undefined
+        }
+
+        const games = get().games
+        const gameIndex = get().games.indexOf(game)
+
+        return games.splice(gameIndex, 1)[0]
+    },
 })

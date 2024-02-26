@@ -1,5 +1,5 @@
 import { store } from '../../store'
-import { Ship } from '../../store/types'
+import type { Ship } from '../../store/types.d'
 import { MessageResponseType } from '../../utils/constants'
 import { defineHandler } from '../../utils/defineHandler'
 import { useCall } from '../../utils/useCall'

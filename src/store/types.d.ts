@@ -76,6 +76,7 @@ export type GameSlice = {
           }
         | undefined
     turn: (gameId: Game['gameId']) => PlayerState['inGameIndex'] | undefined
+    winGame: (winnerId: Game['gameId']) => Game | undefined
 }
 
 export type Store = UserSlice & WinnerSlice & RoomSlice & GameSlice

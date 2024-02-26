@@ -2,6 +2,7 @@ import { store } from '../../store'
 import { MessageResponseType } from '../../utils/constants'
 import { defineHandler } from '../../utils/defineHandler'
 import { useCall } from '../../utils/useCall'
+import finish from './finish'
 import turn from './turn'
 
 export default defineHandler<{
@@ -34,11 +35,12 @@ export default defineHandler<{
         return
     }
 
-    // Check for win
+    // Check for a win
 
     const enemy = game.players.find((p) => p.inGameIndex !== indexPlayer)!
 
     if (!enemy.board.flat().some((c) => c > 0)) {
+        callWithData(finish, game)
         return
     }
 
