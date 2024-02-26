@@ -1,5 +1,4 @@
 import { MessageRequestType, MessageResponseType } from '../utils/constants'
-import { hasValue } from '../utils/hasValue'
 import { isRecord } from '../utils/isRecord'
 import type { Message } from './types.d'
 
@@ -22,9 +21,6 @@ export const parseMessage = <V = unknown>(value: V): Ok<V> | Err<V> => {
 
         if (!('type' in parsedMessage)) {
             return err(`Message has no 'type' field`)
-        }
-        if (!hasValue(MessageRequestType, parsedMessage['type'])) {
-            return err(`Unsupported message 'type'`)
         }
 
         if (!('data' in parsedMessage)) {
@@ -61,7 +57,10 @@ export const parseMessage = <V = unknown>(value: V): Ok<V> | Err<V> => {
     }
 }
 
-export const stringifyMessage = (type: MessageResponseType, data: unknown) => {
+export const stringifyMessage = (
+    type: MessageResponseType | MessageRequestType,
+    data: unknown,
+) => {
     return JSON.stringify({
         type,
         data: JSON.stringify(data),

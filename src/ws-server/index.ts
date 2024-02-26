@@ -10,6 +10,7 @@ import attack from './handlers/attack'
 import create_room from './handlers/create_room'
 import randomAttack from './handlers/randomAttack'
 import reg from './handlers/reg'
+import single_play from './handlers/single_play/single_play'
 import update_room from './handlers/update_room'
 import update_winners from './handlers/update_winners'
 import { parseMessage, stringifyMessage } from './messageParser'
@@ -43,7 +44,11 @@ const handleMessageEvent = (params: MessageHandlerParams) => {
         case MessageRequestType.RandomAttack:
             call(randomAttack)
             return
+        case MessageRequestType.SinglePlay:
+            call(single_play)
+            return
         default:
+            console.log(type)
             return
     }
 }
@@ -118,16 +123,17 @@ export const wsServer = {
                     g.players.find((p) => p.userIndex === ws.sessionId),
                 )
                 if (game) {
-                    game.players.forEach(({ userIndex }) => {
-                        sendTo(userIndex)(MessageResponseType.Finish, {
-                            winPlayer: '',
-                        })
+                    game.players.forEach(({ userIndex, inGameIndex }) => {
+                        if (ws.sessionId !== userIndex) {
+                            sendTo(userIndex)(MessageResponseType.Finish, {
+                                winPlayer: inGameIndex,
+                            })
+                        }
                     })
                     store.removeGame(game.gameId)
                 }
             })
         })
-
         wsServer.on('error', (error) => {
             console.error(error)
         })

@@ -11,7 +11,7 @@ export default defineHandler<{
     y: number
     indexPlayer: string
 }>((params) => {
-    const { message, send, sendTo } = params
+    const { message, send, sendAll } = params
     const { gameId, x, y, indexPlayer } = message.data
     const { callWithData } = useCall(params)
 
@@ -51,13 +51,11 @@ export default defineHandler<{
     // Update hits
 
     const { type, hits } = response
-    game.players.forEach(({ userIndex }) => {
-        hits.forEach(({ x, y }) => {
-            sendTo(userIndex)(MessageResponseType.Attack, {
-                position: { x, y },
-                currentPlayer: game.turnUserIndex,
-                type,
-            })
+    hits.forEach(({ x, y }) => {
+        sendAll(MessageResponseType.Attack, {
+            position: { x, y },
+            currentPlayer: game.turnUserIndex,
+            type,
         })
     })
 

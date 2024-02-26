@@ -1,4 +1,4 @@
-it('Game session 1 with player2', () => {
+it('Player2', () => {
     cy.visit('http://localhost:8181')
 
     cy.get('input[type=text]').type('some_user_2')

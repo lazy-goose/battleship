@@ -20,6 +20,7 @@ export enum MessageResponseType {
 export enum MessageRequestType {
     Registration = 'reg',
     CreateRoom = 'create_room',
+    SinglePlay = 'single_play',
     AddUserToRoom = 'add_user_to_room',
     AddShips = 'add_ships',
     Attack = 'attack',

@@ -34,4 +34,6 @@ export default defineHandler<unknown, string>((params, indexRoom) => {
             })
         }
     })
+
+    return game
 })
