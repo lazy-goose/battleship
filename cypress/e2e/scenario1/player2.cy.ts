@@ -1,0 +1,7 @@
+it('Game session 1 with player2', () => {
+    cy.visit('http://localhost:8181')
+
+    cy.get('input[type=text]').type('some_user_2')
+    cy.get('input[type=password]').type('ana**s')
+    cy.get('button[type=submit]').click()
+})

@@ -21,7 +21,7 @@ export type WinnerSlice = {
 
 export type Room = {
     indexRoom: ID
-    inGame: boolean
+    filled: boolean
     host: User['index']
     player: User['index'] | null
 }
@@ -35,7 +35,31 @@ export type RoomSlice = {
     ) => boolean
 }
 
-export type Store = UserSlice & WinnerSlice & RoomSlice
+type Ship = {
+    position: {
+        x: number
+        y: number
+    }
+    direction: boolean
+    length: number
+    type: 'small' | 'medium' | 'large' | 'huge'
+}
+type PlayerState = {
+    userIndex: User['index']
+    inGameIndex: ID
+    ships: Ship[]
+}
+type Game = {
+    gameId: ID
+    inGame: boolean
+    players: [PlayerState, PlayerState]
+}
+export type GameSlice = {
+    games: Game[]
+    createGame: (roomIndex: Room['indexRoom']) => Game | undefined
+}
+
+export type Store = UserSlice & WinnerSlice & RoomSlice & GameSlice
 
 type Rec = Record<string, unknown>
 

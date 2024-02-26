@@ -12,6 +12,7 @@ export enum MessageResponseType {
     UpdateWinners = 'update_winners',
     /* Special */
     ParseError = 'parse_error',
+    MessageFailed = 'message_failed',
 }
 
 export enum MessageRequestType {
