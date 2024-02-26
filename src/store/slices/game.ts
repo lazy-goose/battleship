@@ -161,7 +161,7 @@ export const createGameSlice: SliceCreator<GameSlice> = (set, get) => ({
                 ? player2.inGameIndex
                 : player1.inGameIndex)
     },
-    winGame: (gameId) => {
+    removeGame: (gameId) => {
         const game = get().games.find((g) => g.gameId === gameId)
         if (!game) {
             return undefined

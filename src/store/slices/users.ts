@@ -1,12 +1,14 @@
 import type { SliceCreator, UserSlice } from '../types.d'
 
-export const createUsersSlice: SliceCreator<UserSlice> = (set) => ({
+export const createUsersSlice: SliceCreator<UserSlice> = (set, get) => ({
     users: [],
     registerUser: (userData) => {
-        const newUser = userData
-        set((state) => {
-            state.users.push(newUser)
-        })
-        return newUser
+        const users = get().users
+        const entryIndex = users.findIndex((u) => u.name === userData.name)
+        if (entryIndex !== -1) {
+            return (users[entryIndex] = userData)
+        }
+        users.push(userData)
+        return userData
     },
 })

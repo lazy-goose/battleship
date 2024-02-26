@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
 import { WebSocketServer, type Server, type WebSocket } from 'ws'
+import { store } from '../store'
 import { MessageRequestType, MessageResponseType } from '../utils/constants'
 import { useCall } from '../utils/useCall'
 import add_ships from './handlers/add_ships'
@@ -58,11 +59,13 @@ export const wsServer = {
         wsServer.on('connection', (ws: WebSocket) => {
             const sessionId = crypto.randomUUID()
             const send: MessageHandlerParams['send'] = (type, data) => {
+                console.log('Send ' + type)
                 const post = stringifyMessage(type, data)
                 ws.send(post)
                 console.log('<- ' + post)
             }
             const sendAll: MessageHandlerParams['sendAll'] = (type, data) => {
+                console.log('SendAll ' + type)
                 const post = stringifyMessage(type, data)
                 const count = wsServer.clients.size
                 wsServer.clients.forEach((client) => {
@@ -73,6 +76,7 @@ export const wsServer = {
             const sendTo: MessageHandlerParams['sendTo'] =
                 (...sessionIds) =>
                 (type, data) => {
+                    console.log('Send To ' + type)
                     const post = stringifyMessage(type, data)
                     let count = 0
                     wsServer.clients.forEach((client) => {
@@ -104,6 +108,23 @@ export const wsServer = {
                     },
                     sessionId,
                 })
+            })
+            ws.on('close', () => {
+                const room = store.rooms.find((r) => r.host === ws.sessionId)
+                if (room) {
+                    store.removeRoom(room.indexRoom)
+                }
+                const game = store.games.find((g) =>
+                    g.players.find((p) => p.userIndex === ws.sessionId),
+                )
+                if (game) {
+                    game.players.forEach(({ userIndex }) => {
+                        sendTo(userIndex)(MessageResponseType.Finish, {
+                            winPlayer: '',
+                        })
+                    })
+                    store.removeGame(game.gameId)
+                }
             })
         })
 
