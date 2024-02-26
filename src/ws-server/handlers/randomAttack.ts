@@ -32,7 +32,7 @@ export default defineHandler<{
     })
 
     const randomAvailableCoord =
-        availableCoords[Math.random() * availableCoords.length]
+        availableCoords[Math.floor(Math.random() * availableCoords.length)]
 
     const attackParams = {
         ...params,

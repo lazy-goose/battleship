@@ -64,7 +64,6 @@ export const createGameSlice: SliceCreator<GameSlice> = (set, get) => ({
                 player.board[ny][nx] = shipId
             }
         })
-        console.log(player.board)
         return ships
     },
     attack: (gameId) => (userInGameIndex, position) => {

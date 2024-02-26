@@ -27,6 +27,12 @@ export default defineHandler<{
         return
     }
 
+    const enemy = game.players.find((p) => p.inGameIndex !== indexPlayer)!
+
+    if (enemy.board[y][x] < 0) {
+        return
+    }
+
     const response = store.attack(gameId)(indexPlayer, { x, y })
     if (!response) {
         send(MessageResponseType.MessageFailed, {
@@ -36,8 +42,6 @@ export default defineHandler<{
     }
 
     // Check for a win
-
-    const enemy = game.players.find((p) => p.inGameIndex !== indexPlayer)!
 
     if (!enemy.board.flat().some((c) => c > 0)) {
         callWithData(finish, game)
