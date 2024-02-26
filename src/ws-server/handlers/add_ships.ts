@@ -32,7 +32,7 @@ export default defineHandler<{
         return
     }
 
-    player.ships = ships
+    store.addShips(gameId)(indexPlayer, ships)
 
     const isGameReady = () => {
         return game.players.every((p) => p.ships.length > 0)

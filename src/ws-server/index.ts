@@ -5,7 +5,9 @@ import { MessageRequestType, MessageResponseType } from '../utils/constants'
 import { useCall } from '../utils/useCall'
 import add_ships from './handlers/add_ships'
 import add_user_to_room from './handlers/add_user_to_room'
+import attack from './handlers/attack'
 import create_room from './handlers/create_room'
+import randomAttack from './handlers/randomAttack'
 import reg from './handlers/reg'
 import update_room from './handlers/update_room'
 import update_winners from './handlers/update_winners'
@@ -33,6 +35,12 @@ const handleMessageEvent = (params: MessageHandlerParams) => {
             return
         case MessageRequestType.AddShips:
             call(add_ships)
+            return
+        case MessageRequestType.Attack:
+            call(attack)
+            return
+        case MessageRequestType.RandomAttack:
+            call(randomAttack)
             return
         default:
             return
