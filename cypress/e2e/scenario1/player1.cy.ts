@@ -6,4 +6,6 @@ it('Game session 1 with player 1', () => {
     cy.get('button[type=submit]').click()
 
     cy.get('button').contains('Create Room').click()
+
+    cy.get('button').contains('Automatically', { timeout: 15000 }).click()
 })

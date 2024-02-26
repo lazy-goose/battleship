@@ -4,4 +4,7 @@ it('Game session 1 with player2', () => {
     cy.get('input[type=text]').type('some_user_2')
     cy.get('input[type=password]').type('ana**s')
     cy.get('button[type=submit]').click()
+
+    cy.get('button').contains('add to Room').last().click()
+    cy.get('button').contains('Automatically').click()
 })

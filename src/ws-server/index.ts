@@ -3,6 +3,7 @@
 import { WebSocketServer, type Server, type WebSocket } from 'ws'
 import { MessageRequestType, MessageResponseType } from '../utils/constants'
 import { useCall } from '../utils/useCall'
+import add_ships from './handlers/add_ships'
 import add_user_to_room from './handlers/add_user_to_room'
 import create_room from './handlers/create_room'
 import reg from './handlers/reg'
@@ -29,6 +30,9 @@ const handleMessageEvent = (params: MessageHandlerParams) => {
         case MessageRequestType.AddUserToRoom:
             call(add_user_to_room)
             call(update_room)
+            return
+        case MessageRequestType.AddShips:
+            call(add_ships)
             return
         default:
             return
