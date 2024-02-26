@@ -12,6 +12,7 @@ export type UserSlice = {
 
 export type Winner = {
     userIndex: User['index']
+    name: string
     wins: number
 }
 export type WinnerSlice = {
@@ -29,6 +30,10 @@ export type RoomSlice = {
     rooms: Room[]
     createRoom: (hostIndex: User['index']) => Room
     removeRoom: (indexRoom: Room['indexRoom']) => void
+    removeFromRoom: (
+        indexRoom: Room['indexRoom'],
+        userIndex: User['index'],
+    ) => Room | undefined
     addToRoom: (
         indexRoom: Room['indexRoom'],
         userIndex: User['index'],
@@ -56,7 +61,11 @@ export type Game = {
     players: [PlayerState, PlayerState]
     turnUserIndex: PlayerState['inGameIndex']
 }
-type Coord = { x: number; y: number }
+export type AttackResponse = {
+    status: 'miss' | 'killed' | 'shot'
+    pos: Coord
+}
+export type Coord = { x: number; y: number }
 export type GameSlice = {
     games: Game[]
     createGame: (roomIndex: Room['indexRoom']) => Game | undefined
@@ -66,15 +75,18 @@ export type GameSlice = {
         inGameIndex: PlayerState['inGameIndex'],
         ships: Ship[],
     ) => Ships[] | undefined
-    attack: (gameId: Game['gameId']) => (
+    getStatusOfCell: (
+        gameId: Game['gameId'],
+    ) => (
         inGameIndex: PlayerState['inGameIndex'],
         position: Coord,
-    ) =>
-        | {
-              type: 'miss' | 'killed' | 'shot'
-              hits: Coord[]
-          }
-        | undefined
+    ) => AttackResponse['type'] | 'hide' | undefined
+    attack: (
+        gameId: Game['gameId'],
+    ) => (
+        inGameIndex: PlayerState['inGameIndex'],
+        position: Coord,
+    ) => AttackResponse[] | undefined
     turn: (gameId: Game['gameId']) => PlayerState['inGameIndex'] | undefined
     removeGame: (gameId: Game['gameId']) => Game | undefined
 }

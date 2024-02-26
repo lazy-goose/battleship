@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
+import url from 'url'
 import { WebSocketServer, type Server, type WebSocket } from 'ws'
 import { store } from '../store'
 import { MessageRequestType, MessageResponseType } from '../utils/constants'
@@ -15,6 +14,8 @@ import update_room from './handlers/update_room'
 import update_winners from './handlers/update_winners'
 import { parseMessage, stringifyMessage } from './messageParser'
 import type { MessageHandlerParams } from './types.d'
+
+const log = (msg: string) => console.log(`\x1b[36m${msg}\x1b[0m`)
 
 const handleMessageEvent = (params: MessageHandlerParams) => {
     const {
@@ -61,16 +62,24 @@ export const wsServer = {
             onServerStart(wsServer)
         }
 
-        wsServer.on('connection', (ws: WebSocket) => {
-            const sessionId = crypto.randomUUID()
+        wsServer.on('connection', (ws: WebSocket, req) => {
+            const parsedUrl = url.parse(req.url as string, true)
+            const bot_id = parsedUrl.query.bot_id
+            const sessionId =
+                typeof bot_id === 'string'
+                    ? bot_id
+                    : req.headers['sec-websocket-key'] || crypto.randomUUID()
+
+            ws.sessionId = sessionId
+
+            log(`Socket '${ws.sessionId}' was established`)
+
             const send: MessageHandlerParams['send'] = (type, data) => {
-                console.log('Send ' + type)
                 const post = stringifyMessage(type, data)
                 ws.send(post)
                 console.log('<- ' + post)
             }
             const sendAll: MessageHandlerParams['sendAll'] = (type, data) => {
-                console.log('SendAll ' + type)
                 const post = stringifyMessage(type, data)
                 const count = wsServer.clients.size
                 wsServer.clients.forEach((client) => {
@@ -81,7 +90,6 @@ export const wsServer = {
             const sendTo: MessageHandlerParams['sendTo'] =
                 (...sessionIds) =>
                 (type, data) => {
-                    console.log('Send To ' + type)
                     const post = stringifyMessage(type, data)
                     let count = 0
                     wsServer.clients.forEach((client) => {
@@ -94,6 +102,17 @@ export const wsServer = {
                     })
                     console.log('<- '.repeat(count) + post)
                 }
+
+            const baseMessage = {
+                send,
+                sendAll,
+                sendTo,
+                _: {
+                    wss: wsServer,
+                    ws,
+                },
+            }
+
             ws.on('message', (buffer) => {
                 const { error, parsed, data } = parseMessage(buffer.toString())
                 if (error) {
@@ -101,37 +120,42 @@ export const wsServer = {
                     return
                 }
                 console.log('-> ' + data)
-                ws.sessionId = sessionId
                 handleMessageEvent({
+                    ...baseMessage,
                     message: parsed!,
-                    send,
-                    sendAll,
-                    sendTo,
-                    _: {
-                        wss: wsServer,
-                        ws,
-                    },
-                    sessionId,
+                    sessionId: ws.sessionId,
                 })
             })
             ws.on('close', () => {
-                const room = store.rooms.find((r) => r.host === ws.sessionId)
-                if (room) {
-                    store.removeRoom(room.indexRoom)
-                }
                 const game = store.games.find((g) =>
                     g.players.find((p) => p.userIndex === ws.sessionId),
                 )
                 if (game) {
                     game.players.forEach(({ userIndex, inGameIndex }) => {
-                        if (ws.sessionId !== userIndex) {
-                            sendTo(userIndex)(MessageResponseType.Finish, {
-                                winPlayer: inGameIndex,
-                            })
+                        if (game.inGame) {
+                            if (ws.sessionId !== userIndex) {
+                                store.incrementWin(userIndex)
+                                sendTo(userIndex)(MessageResponseType.Finish, {
+                                    winPlayer: inGameIndex,
+                                })
+                            }
                         }
                     })
                     store.removeGame(game.gameId)
                 }
+                store.rooms.forEach(({ indexRoom }) => {
+                    const removed = store.removeFromRoom(
+                        indexRoom,
+                        ws.sessionId,
+                    )
+                    if (removed) {
+                        update_room(
+                            baseMessage as MessageHandlerParams<unknown>,
+                            null,
+                        )
+                    }
+                })
+                log(`Socket '${ws.sessionId}' was closed`)
             })
         })
         wsServer.on('error', (error) => {

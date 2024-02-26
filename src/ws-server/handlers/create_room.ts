@@ -1,7 +1,7 @@
 import { store } from '../../store'
 import { defineHandler } from '../../utils/defineHandler'
 
-export default defineHandler<''>((params) => {
+export default defineHandler((params) => {
     const { sessionId: userIndex } = params
-    store.createRoom(userIndex)
+    return store.createRoom(userIndex)
 })

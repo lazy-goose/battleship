@@ -24,28 +24,33 @@ const message = <D>(params: MessageHandlerParams<unknown>, data: D) => {
     }
 }
 
-export default defineHandler((params) => {
-    const { sessionId: userIndex } = params
+export default defineHandler((userParams) => {
+    const { sessionId: humanUserIndex } = userParams
 
-    // Skip: register bot
     const botIndex = crypto.randomUUID()
+    const botParams = { ...userParams, sessionId: botIndex }
+
+    const ws = new WebSocket(`ws://localhost:${WS_PORT}?bot_id=${botIndex}`)
+
+    const human = store.users.find((u) => u.index === humanUserIndex)
+
+    if (!human) return
+
     const bot = store.registerUser({
         index: botIndex,
-        name: 'Bot',
+        name: `Bot + ${human.name}`,
         password: '@robokot',
     })
 
-    // Skip: create room
-    const room = store.createRoom(userIndex)
+    const room = store.createRoom(humanUserIndex)
     store.addToRoom(room.indexRoom, bot.index)
 
-    // Create game
-    const game = create_game(params, room.indexRoom) as unknown as Game
+    const game = create_game(userParams, room.indexRoom) as unknown as Game
 
     // Add ships
     const botPlayer = game.players.find((p) => p.userIndex === botIndex)!
     add_ships(
-        message(params, {
+        message(botParams, {
             gameId: game.gameId,
             ships: generateShips(),
             indexPlayer: botPlayer.inGameIndex,
@@ -54,13 +59,10 @@ export default defineHandler((params) => {
     )
 
     // An advantage for a pathetic man
-    const humus = game.players.find(
+    const humanPlayer = game.players.find(
         (p) => p.inGameIndex !== botPlayer.inGameIndex,
     )!
-    game.turnUserIndex = humus.inGameIndex
-
-    // Listen ws events
-    const ws = new WebSocket(`ws://localhost:${WS_PORT}`)
+    game.turnUserIndex = humanPlayer.inGameIndex
 
     ws.on('message', async (buffer) => {
         const { parsed } = parseMessage(buffer.toString())
@@ -75,7 +77,7 @@ export default defineHandler((params) => {
                     const y = Math.floor(index / BOARD_SIZE)
                     if (index > BOARD_SIZE ** 2) break
                     attack(
-                        message(params, {
+                        message(botParams, {
                             gameId: game.gameId,
                             x,
                             y,
@@ -98,6 +100,13 @@ export default defineHandler((params) => {
                     store.users.findIndex((u) => u.index === botIndex),
                     1,
                 )
+                ws.once('close', () => {
+                    const bi = store.users.findIndex(
+                        (u) => u.index === botIndex,
+                    )
+                    if (bi === -1) return
+                    store.users.splice(bi, 1)
+                })
                 ws.close()
                 return
             default:

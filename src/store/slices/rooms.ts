@@ -27,6 +27,21 @@ export const createRoomSlice: SliceCreator<RoomSlice> = (set, get) => ({
         room.filled = true
         return true
     },
+    removeFromRoom: (indexRoom, userIndex) => {
+        const room = get().rooms.find((r) => r.indexRoom === indexRoom)
+        if (!room) {
+            return undefined
+        }
+        if (room.host !== userIndex) return undefined
+        if (room.player !== userIndex) return undefined
+        if (room.host === userIndex) {
+            get().removeRoom(indexRoom)
+            return undefined
+        } else {
+            room.player = null
+            return room
+        }
+    },
     removeRoom: (indexRoom) => {
         const index = get().rooms.findIndex((r) => r.indexRoom === indexRoom)
         if (index !== -1) {

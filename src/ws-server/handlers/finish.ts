@@ -22,11 +22,11 @@ export default defineHandler<unknown, Game>((params, _game) => {
     if (!winner) {
         return
     }
+    store.incrementWin(winner.userIndex)
     game.players.forEach(({ userIndex }) => {
         sendTo(userIndex)(MessageResponseType.Finish, {
             winPlayer: winner.inGameIndex,
         })
     })
-    store.incrementWin(winner.userIndex)
     call(update_winners)
 })

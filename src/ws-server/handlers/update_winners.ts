@@ -6,9 +6,8 @@ export default defineHandler((params) => {
     const { sendAll } = params
     sendAll(
         MessageResponseType.UpdateWinners,
-        store.winners.map((winner) => ({
-            name: store.users.find((u) => u.index === winner.userIndex)?.name,
-            wins: winner.wins,
-        })),
+        store.winners
+            .sort((w1, w2) => w2.wins - w1.wins)
+            .map(({ name, wins }) => ({ name, wins })),
     )
 })

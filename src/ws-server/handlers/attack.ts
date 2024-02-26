@@ -11,7 +11,7 @@ export default defineHandler<{
     y: number
     indexPlayer: string
 }>((params) => {
-    const { message, send, sendAll } = params
+    const { message, send, sendTo } = params
     const { gameId, x, y, indexPlayer } = message.data
     const { callWithData } = useCall(params)
 
@@ -29,12 +29,16 @@ export default defineHandler<{
 
     const enemy = game.players.find((p) => p.inGameIndex !== indexPlayer)!
 
-    if (enemy.board[y][x] < 0) {
+    const status = store.getStatusOfCell(gameId)(indexPlayer, { x, y })
+
+    if (status !== 'hide') {
+        callWithData(turn, game)
         return
     }
 
-    const response = store.attack(gameId)(indexPlayer, { x, y })
-    if (!response) {
+    const hits = store.attack(gameId)(indexPlayer, { x, y })
+
+    if (!hits || !status) {
         send(MessageResponseType.MessageFailed, {
             error: `Skip the attack, check gameId '${gameId}' or indexPlayer '${indexPlayer}'`,
         })
@@ -50,18 +54,19 @@ export default defineHandler<{
 
     // Update hits
 
-    const { type, hits } = response
-    hits.forEach(({ x, y }) => {
-        sendAll(MessageResponseType.Attack, {
-            position: { x, y },
-            currentPlayer: game.turnUserIndex,
-            type,
+    hits.forEach(({ status, pos: { x, y } }) => {
+        game.players.forEach(({ userIndex }) => {
+            sendTo(userIndex)(MessageResponseType.Attack, {
+                currentPlayer: game.turnUserIndex,
+                position: { x, y },
+                status,
+            })
         })
     })
 
     // Turn
 
-    if (type === 'miss') {
+    if (hits.length === 1 && hits[0].status === 'miss') {
         store.turn(gameId)
     }
 
